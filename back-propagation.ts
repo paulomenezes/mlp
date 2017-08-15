@@ -18,10 +18,7 @@ export class BackPropagation {
   previousWeightDelta: number[][][];
 
   constructor(layerSizes: number[], transferFunctions: TransferFunction[]) {
-    if (
-      transferFunctions.length !== layerSizes.length ||
-      transferFunctions[0] !== TransferFunction.NONE
-    ) {
+    if (transferFunctions.length !== layerSizes.length || transferFunctions[0] !== TransferFunction.NONE) {
       throw new TypeError('Invalid parameters');
     }
 
@@ -61,11 +58,7 @@ export class BackPropagation {
       this.previousWeightDelta[l] = [];
 
       // Length = layerSize[l]
-      for (
-        var i = 0;
-        i < (l === 0 ? this.inputSize : this.layerSize[l - 1]);
-        i++
-      ) {
+      for (var i = 0; i < (l === 0 ? this.inputSize : this.layerSize[l - 1]); i++) {
         this.weight[l][i] = [];
         this.previousWeightDelta[l][i] = [];
       }
@@ -81,11 +74,7 @@ export class BackPropagation {
         this.delta[l][j] = 0.0;
       }
 
-      for (
-        var i = 0;
-        i < (l === 0 ? this.inputSize : this.layerSize[l - 1]);
-        i++
-      ) {
+      for (var i = 0; i < (l === 0 ? this.inputSize : this.layerSize[l - 1]); i++) {
         for (var j = 0; j < this.layerSize[l]; j++) {
           this.weight[l][i][j] = Gaussian.getNormalGaussian();
           this.previousWeightDelta[l][i][j] = 0.0;
@@ -107,23 +96,14 @@ export class BackPropagation {
     for (var l = 0; l < this.layerCount; l++) {
       for (var j = 0; j < this.layerSize[l]; j++) {
         let sum = 0.0;
-        for (
-          var i = 0;
-          i < (l === 0 ? this.inputSize : this.layerSize[l - 1]);
-          i++
-        ) {
-          sum +=
-            this.weight[l][i][j] *
-            (l === 0 ? input[i] : this.layerOutput[l - 1][i]);
+        for (var i = 0; i < (l === 0 ? this.inputSize : this.layerSize[l - 1]); i++) {
+          sum += this.weight[l][i][j] * (l === 0 ? input[i] : this.layerOutput[l - 1][i]);
         }
 
         sum += this.bias[l][j];
 
         this.layerInput[l][j] = sum;
-        this.layerOutput[l][j] = TransferFunctions.evaluate(
-          this.transferFunction[l],
-          sum
-        );
+        this.layerOutput[l][j] = TransferFunctions.evaluate(this.transferFunction[l], sum);
       }
     }
 
@@ -135,16 +115,8 @@ export class BackPropagation {
     return output;
   }
 
-  train(
-    input: number[],
-    desired: number[],
-    trainingRate: number,
-    momentum: number
-  ) {
-    if (
-      input.length !== this.inputSize ||
-      desired.length !== this.layerSize[this.layerCount - 1]
-    ) {
+  train(input: number[], desired: number[], trainingRate: number, momentum: number) {
+    if (input.length !== this.inputSize || desired.length !== this.layerSize[this.layerCount - 1]) {
       console.log(desired.length, this.layerSize[this.layerCount - 1]);
       throw new TypeError('Invalid input');
     }
@@ -165,10 +137,7 @@ export class BackPropagation {
           this.delta[l][k] = output[k] - desired[k];
           error += Math.pow(this.delta[l][k], 2);
 
-          this.delta[l][k] *= TransferFunctions.evaluateDerivative(
-            this.transferFunction[l],
-            this.layerInput[l][k]
-          );
+          this.delta[l][k] *= TransferFunctions.evaluateDerivative(this.transferFunction[l], this.layerInput[l][k]);
         }
       } else {
         // Hidden layer
@@ -178,10 +147,7 @@ export class BackPropagation {
             sum += this.weight[l + 1][i][j] * this.delta[l + 1][j];
           }
 
-          sum *= TransferFunctions.evaluateDerivative(
-            this.transferFunction[l],
-            this.layerInput[l][i]
-          );
+          sum *= TransferFunctions.evaluateDerivative(this.transferFunction[l], this.layerInput[l][i]);
 
           this.delta[l][i] = sum;
         }
@@ -190,17 +156,10 @@ export class BackPropagation {
 
     // Update the weights and biases
     for (var l = 0; l < this.layerCount; l++) {
-      for (
-        var i = 0;
-        i < (l === 0 ? this.inputSize : this.layerSize[l - 1]);
-        i++
-      ) {
+      for (var i = 0; i < (l === 0 ? this.inputSize : this.layerSize[l - 1]); i++) {
         for (var j = 0; j < this.layerSize[l]; j++) {
           weightDelta =
-            trainingRate *
-              this.delta[l][j] *
-              (l === 0 ? input[i] : this.layerOutput[l - 1][i]) +
-            momentum * this.previousWeightDelta[l][i][j];
+            trainingRate * this.delta[l][j] * (l === 0 ? input[i] : this.layerOutput[l - 1][i]) + momentum * this.previousWeightDelta[l][i][j];
 
           this.weight[l][i][j] -= weightDelta;
           this.previousWeightDelta[l][i][j] = weightDelta;
