@@ -14,19 +14,25 @@ const readFile = (name: string) => {
   const data = fs.readFileSync(name).toString().split('\n');
   data.forEach(line => {
     let inputLine: number[] = [];
-    line.substr(line.indexOf(',') + 1).split(',').forEach(value => {
+    line.substr(0, line.length - 2).split(',').forEach(value => {
       inputLine.push(+value);
     });
 
-    if (inputLine.length === 16) {
+    if (inputLine.length === 9) {
       input.push(inputLine);
 
       let outputLine: number[] = [];
-      for (var i = 0; i < 26; i++) {
+      for (var i = 0; i < 2; i++) {
         outputLine[i] = 0;
       }
 
-      outputLine[+line.substr(0, line.indexOf(','))] = 1;
+      if (+line.substr(line.length - 1, 1) === 2) {
+        outputLine[0] = 1;
+      } else {
+        outputLine[1] = 1;
+      }
+
+      //outputLine[+line.substr(0, line.indexOf(','))] = 1;
       output.push(outputLine);
     }
   });
@@ -34,7 +40,7 @@ const readFile = (name: string) => {
   return [input, output];
 };
 
-const trainingData = readFile('./data/training.txt');
+const trainingData = readFile('./data/training.breast.txt');
 
 let valuesMean: any[] = [];
 
@@ -44,7 +50,7 @@ for (var index = 0; index < 30; index++) {
   let input: number[][] = trainingData[0];
   let output: number[][] = trainingData[1];
 
-  let network = new BackPropagation([16, 26, 26], [TransferFunction.NONE, TransferFunction.SIGMOID, TransferFunction.SIGMOID]);
+  let network = new BackPropagation([9, 2, 2], [TransferFunction.NONE, TransferFunction.SIGMOID, TransferFunction.SIGMOID]);
 
   const maxCount = 500;
   const size = input.length;
@@ -68,11 +74,11 @@ for (var index = 0; index < 30; index++) {
     if (count % 100 === 0) {
       console.log(`Epoch ${count} completed with error ${error}`);
     }
-  } while (error > 0.1 && count <= maxCount);
+  } while (error > 0.01 && count <= maxCount);
 
-  fs.writeFile('./output-2/result-' + index + '.txt', values);
+  fs.writeFile('./output-cancer-2/result-' + index + '.txt', values);
 
-  const testData = readFile('./data/test.txt');
+  const testData = readFile('./data/test.breast.txt');
   let inputTest: number[][] = testData[0];
   let outputTest: number[][] = testData[1];
 
@@ -142,38 +148,7 @@ chartNode
     }
   })
   .then((streamResult: any) => {
-    return chartNode.writeImageToFile('image/png', './output-2/MSE.png');
+    return chartNode.writeImageToFile('image/png', './output-cancer-2/MSE.png');
   });
 
 console.timeEnd('mlp');
-
-/* XOR-Gate Example
-let network = new BackPropagation([2, 2, 1], [TransferFunction.NONE, TransferFunction.SIGMOID, TransferFunction.LINEAR]);
-
-let input: number[][] = [[0, 0], [0, 1], [1, 0], [1, 1]];
-let output: number[][] = [[0], [1], [1], [0]];
-
-const maxCount = 10000;
-let error = 0.0;
-let count = 0;
-
-do {
-  count++;
-  error = 0.0;
-
-  for (var i = 0; i < 4; i++) {
-    error += network.train(input[i], output[i], 0.15, 0.1);
-  }
-
-  // Show progress
-  if (count % 250 === 0) {
-    console.log(`Epoch ${count} completed with error ${error}`);
-  }
-} while (error > 0.00001 && count <= maxCount);
-
-let networkOutput: number[];
-for (var i = 0; i < 4; i++) {
-  networkOutput = network.run(input[i]);
-  console.log(`Case ${i} ${input[i][0]} xor ${input[i][1]} = ${networkOutput[0]}`);
-}
-*/
