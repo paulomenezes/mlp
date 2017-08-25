@@ -44,13 +44,13 @@ const trainingData = readFile('./data/training.breast.txt');
 
 let valuesMean: any[] = [];
 
-for (var index = 0; index < 30; index++) {
+for (var index = 0; index < 1; index++) {
   let values: number[] = [];
 
   let input: number[][] = trainingData[0];
   let output: number[][] = trainingData[1];
 
-  let network = new BackPropagation([9, 2, 2], [TransferFunction.NONE, TransferFunction.SIGMOID, TransferFunction.SIGMOID]);
+  let network = new BackPropagation([9, 43, 2], [TransferFunction.NONE, TransferFunction.SIGMOID, TransferFunction.SIGMOID]);
 
   const maxCount = 500;
   const size = input.length;
@@ -63,7 +63,7 @@ for (var index = 0; index < 30; index++) {
     error = 0.0;
 
     for (var i = 0; i < size; i++) {
-      error += network.train(input[i], output[i], 0.15, 0.1);
+      error += network.train(input[i], output[i], 0.72, 0.56);
     }
 
     error = error / size;
@@ -76,7 +76,7 @@ for (var index = 0; index < 30; index++) {
     }
   } while (error > 0.01 && count <= maxCount);
 
-  fs.writeFile('./output-cancer-2/result-' + index + '.txt', values);
+  // fs.writeFile('./output-cancer-2/result-' + index + '.txt', values);
 
   const testData = readFile('./data/test.breast.txt');
   let inputTest: number[][] = testData[0];
@@ -148,7 +148,7 @@ chartNode
     }
   })
   .then((streamResult: any) => {
-    return chartNode.writeImageToFile('image/png', './output-cancer-2/MSE.png');
+    return chartNode.writeImageToFile('image/png', './output-pso/CANCER-MSE.png');
   });
 
 console.timeEnd('mlp');
